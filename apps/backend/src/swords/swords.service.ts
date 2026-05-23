@@ -44,6 +44,11 @@ export class SwordsService {
     return this.toSwordResponse(sword);
   }
 
+  addLevel(userId: number, swordId: number): void {
+    const sword = this.findSwordById(userId, swordId);
+    sword.level += 1;
+  }
+
   private findSwordById(userId: number, swordId: number): Sword {
     const sword = this.swords.find(
       (candidate) => candidate.userId === userId && candidate.id === swordId,
