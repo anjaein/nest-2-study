@@ -81,6 +81,12 @@ export class UsersService {
     user.gold += amount;
   }
 
+  addGem(userId: number, amount: number): void {
+    const user = this.findUserById(userId);
+
+    user.gem += amount;
+  }
+
   private hashPassword(password: string, salt: string): string {
     return scryptSync(password, salt, 64).toString('hex');
   }
