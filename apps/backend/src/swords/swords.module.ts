@@ -5,5 +5,6 @@ import { SwordsService } from './swords.service';
 @Module({
   controllers: [SwordsController],
   providers: [SwordsService],
+  exports: [SwordsService],
 })
 export class SwordsModule {}
