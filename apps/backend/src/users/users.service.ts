@@ -75,6 +75,12 @@ export class UsersService {
     this.users.splice(userIndex, 1);
   }
 
+  addGold(userId: number, amount: number): void {
+    const user = this.findUserById(userId);
+
+    user.gold += amount;
+  }
+
   private hashPassword(password: string, salt: string): string {
     return scryptSync(password, salt, 64).toString('hex');
   }
