@@ -14,3 +14,10 @@ export interface PublicUser {
   email: string;
   nickname: string;
 }
+
+export interface MyProfile {
+  id: number;
+  nickname: string;
+  gold: number;
+  gem: number;
+}

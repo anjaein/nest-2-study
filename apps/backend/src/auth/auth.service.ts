@@ -3,10 +3,10 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { createHmac } from 'node:crypto';
 import { SwordsService } from '../swords/swords.service';
 import { UsersService } from '../users/users.service';
 import type { PublicUser } from '../users/users.types';
+import { signAccessToken } from './access-token';
 import type { LoginDto } from './dto/login.dto';
 import type { RegisterDto } from './dto/register.dto';
 
@@ -44,7 +44,11 @@ export class AuthService {
     }
 
     return {
-      accessToken: this.createAccessToken(user),
+      accessToken: signAccessToken({
+        sub: user.id,
+        email: user.email,
+        nickname: user.nickname,
+      }),
     };
   }
 
@@ -62,23 +66,5 @@ export class AuthService {
     if (!loginDto?.email?.trim() || !loginDto?.password?.trim()) {
       throw new BadRequestException('email, password는 필수입니다.');
     }
-  }
-
-  private createAccessToken(user: PublicUser): string {
-    const header = this.base64UrlEncode({ alg: 'HS256', typ: 'JWT' });
-    const payload = this.base64UrlEncode({
-      sub: user.id,
-      email: user.email,
-      nickname: user.nickname,
-    });
-    const signature = createHmac('sha256', 'sword-task-dev-secret')
-      .update(`${header}.${payload}`)
-      .digest('base64url');
-
-    return `${header}.${payload}.${signature}`;
-  }
-
-  private base64UrlEncode(value: object): string {
-    return Buffer.from(JSON.stringify(value)).toString('base64url');
   }
 }

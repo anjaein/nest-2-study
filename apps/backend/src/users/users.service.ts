@@ -1,6 +1,6 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
-import type { PublicUser, User } from './users.types';
+import type { MyProfile, PublicUser, User } from './users.types';
 
 @Injectable()
 export class UsersService {
@@ -54,6 +54,27 @@ export class UsersService {
     return user ? this.toPublicUser(user) : null;
   }
 
+  getMyProfile(userId: number): MyProfile {
+    const user = this.findUserById(userId);
+
+    return {
+      id: user.id,
+      nickname: user.nickname,
+      gold: user.gold,
+      gem: user.gem,
+    };
+  }
+
+  deleteUser(userId: number): void {
+    const userIndex = this.users.findIndex((user) => user.id === userId);
+
+    if (userIndex === -1) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    this.users.splice(userIndex, 1);
+  }
+
   private hashPassword(password: string, salt: string): string {
     return scryptSync(password, salt, 64).toString('hex');
   }
@@ -66,6 +87,16 @@ export class UsersService {
     const storedPasswordHash = Buffer.from(user.passwordHash, 'hex');
 
     return timingSafeEqual(passwordHash, storedPasswordHash);
+  }
+
+  private findUserById(userId: number): User {
+    const user = this.users.find((candidate) => candidate.id === userId);
+
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    return user;
   }
 
   private toPublicUser(user: User): PublicUser {
