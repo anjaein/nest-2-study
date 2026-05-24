@@ -17,30 +17,32 @@ export class AuthService {
     private readonly swordsService: SwordsService,
   ) {}
 
-  register(registerDto: RegisterDto): PublicUser {
+  async register(registerDto: RegisterDto): Promise<PublicUser> {
     this.assertRegisterDto(registerDto);
 
-    const user = this.usersService.createUser(
+    const user = await this.usersService.createUser(
       registerDto.email,
       registerDto.password,
       registerDto.nickname,
     );
 
-    this.swordsService.createStarterSword(user.id);
+    await this.swordsService.createStarterSword(user.id);
 
     return user;
   }
 
-  login(loginDto: LoginDto): { accessToken: string } {
+  async login(loginDto: LoginDto): Promise<{ accessToken: string }> {
     this.assertLoginDto(loginDto);
 
-    const user = this.usersService.validateCredentials(
+    const user = await this.usersService.validateCredentials(
       loginDto.email,
       loginDto.password,
     );
 
     if (!user) {
-      throw new UnauthorizedException('이메일 또는 비밀번호가 올바르지 않습니다.');
+      throw new UnauthorizedException(
+        '이메일 또는 비밀번호가 올바르지 않습니다.',
+      );
     }
 
     return {

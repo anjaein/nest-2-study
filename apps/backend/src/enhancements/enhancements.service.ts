@@ -3,9 +3,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { SwordsService } from '../swords/swords.service';
 import { UsersService } from '../users/users.service';
-import type { EnhanceResult, EnhancementAttempt } from './enhancements.types';
+import { EnhancementAttempt } from './entities/enhancement-attempt.entity';
+import type { EnhanceResult } from './enhancements.types';
 
 @Injectable()
 export class EnhancementsService {
@@ -22,17 +25,17 @@ export class EnhancementsService {
     { level: 10, successRate: 0.3, requiredGold: 800 },
   ];
 
-  private readonly attempts: EnhancementAttempt[] = [];
-  private nextId = 1;
   private maxLevel = 30;
 
   constructor(
+    @InjectRepository(EnhancementAttempt)
+    private readonly attemptsRepository: Repository<EnhancementAttempt>,
     private readonly swordsService: SwordsService,
     private readonly usersService: UsersService,
   ) {}
 
-  enhance(userId: number, swordId: number): EnhanceResult {
-    const sword = this.swordsService.findById(userId, swordId);
+  async enhance(userId: number, swordId: number): Promise<EnhanceResult> {
+    const sword = await this.swordsService.findById(userId, swordId);
 
     if (sword.level >= this.maxLevel) {
       throw new BadRequestException('더 이상 강화할 수 없습니다.');
@@ -41,27 +44,26 @@ export class EnhancementsService {
     const targetLevel = sword.level + 1;
     const config = this.getEnhanceConfig(targetLevel);
 
-    const userProfile = this.usersService.getMyProfile(userId);
+    const userProfile = await this.usersService.getMyProfile(userId);
     if (userProfile.gold < config.requiredGold) {
       throw new BadRequestException('골드가 부족합니다.');
     }
 
     const success = Math.random() < config.successRate;
 
-    this.attempts.push({
-      id: this.nextId,
-      swordId,
-      userId,
-      targetLevel,
-      success,
-      attemptedAt: new Date(),
-    });
-    this.nextId += 1;
+    await this.attemptsRepository.save(
+      this.attemptsRepository.create({
+        swordId,
+        userId,
+        targetLevel,
+        success,
+      }),
+    );
 
-    this.usersService.addGold(userId, -config.requiredGold);
+    await this.usersService.addGold(userId, -config.requiredGold);
 
     if (success) {
-      this.swordsService.addLevel(userId, swordId);
+      await this.swordsService.addLevel(userId, swordId);
     }
 
     return {

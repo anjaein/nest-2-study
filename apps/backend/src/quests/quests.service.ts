@@ -3,49 +3,65 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
-import type { Quest, UserQuest, UserQuestResponse } from './quests.types';
+import { Quest } from './entities/quest.entity';
+import { UserQuest } from './entities/user-quest.entity';
+import type { UserQuestResponse } from './quests.types';
 
 @Injectable()
 export class QuestsService {
-  private readonly quests: Quest[] = [
+  private readonly defaultQuests = [
     { id: 1, title: '10개 할일 완료하기', rewardGold: 100, type: 'daily' },
     { id: 2, title: '5번 강화 시도하기', rewardGold: 50, type: 'daily' },
     { id: 3, title: '매일 접속하기', rewardGold: 30, type: 'daily' },
     { id: 4, title: '50개 할일 완료하기', rewardGold: 500, type: 'weekly' },
     { id: 5, title: '검 강화 3회 성공하기', rewardGold: 200, type: 'weekly' },
-  ];
+  ] satisfies Array<Pick<Quest, 'id' | 'title' | 'rewardGold' | 'type'>>;
 
-  private readonly userQuests: UserQuest[] = [];
-  private nextUserQuestId = 1;
+  constructor(
+    @InjectRepository(Quest)
+    private readonly questsRepository: Repository<Quest>,
+    @InjectRepository(UserQuest)
+    private readonly userQuestsRepository: Repository<UserQuest>,
+    private readonly usersService: UsersService,
+  ) {}
 
-  constructor(private readonly usersService: UsersService) {}
-
-  findAll(userId: number): UserQuestResponse[] {
+  async findAll(userId: number): Promise<UserQuestResponse[]> {
     const today = this.getTodayKey();
     const thisWeek = this.getWeekKey();
 
-    this.ensureUserQuestsExist(userId, today, thisWeek);
+    await this.ensureDefaultQuestsExist();
+    await this.ensureUserQuestsExist(userId, today, thisWeek);
 
-    return this.userQuests
-      .filter(
-        (uq) =>
-          uq.userId === userId &&
-          (uq.periodKey === today || uq.periodKey === thisWeek),
-      )
-      .map((uq) => this.toUserQuestResponse(uq));
+    const userQuests = await this.userQuestsRepository.find({
+      where: [
+        { userId, periodKey: today },
+        { userId, periodKey: thisWeek },
+      ],
+      order: { id: 'ASC' },
+    });
+
+    return Promise.all(
+      userQuests.map((userQuest) => this.toUserQuestResponse(userQuest)),
+    );
   }
 
-  complete(userId: number, userQuestId: number): UserQuestResponse {
-    const userQuest = this.findUserQuestById(userId, userQuestId);
+  async complete(
+    userId: number,
+    userQuestId: number,
+  ): Promise<UserQuestResponse> {
+    const userQuest = await this.findUserQuestById(userId, userQuestId);
 
     userQuest.isCompleted = true;
+    await this.userQuestsRepository.save(userQuest);
 
     return this.toUserQuestResponse(userQuest);
   }
 
-  claim(userId: number, userQuestId: number): UserQuestResponse {
-    const userQuest = this.findUserQuestById(userId, userQuestId);
+  async claim(userId: number, userQuestId: number): Promise<UserQuestResponse> {
+    const userQuest = await this.findUserQuestById(userId, userQuestId);
 
     if (!userQuest.isCompleted) {
       throw new BadRequestException('완료되지 않은 퀘스트입니다.');
@@ -56,64 +72,74 @@ export class QuestsService {
     }
 
     userQuest.claimedAt = new Date();
+    await this.userQuestsRepository.save(userQuest);
 
-    const quest = this.getQuestById(userQuest.questId);
-    this.usersService.addGold(userId, quest.rewardGold);
+    const quest = await this.getQuestById(userQuest.questId);
+    await this.usersService.addGold(userId, quest.rewardGold);
 
     return this.toUserQuestResponse(userQuest);
   }
 
-  private ensureUserQuestsExist(
+  private async ensureDefaultQuestsExist(): Promise<void> {
+    const questCount = await this.questsRepository.count();
+
+    if (questCount > 0) {
+      return;
+    }
+
+    await this.questsRepository.save(
+      this.defaultQuests.map((quest) => this.questsRepository.create(quest)),
+    );
+  }
+
+  private async ensureUserQuestsExist(
     userId: number,
     dailyKey: string,
     weeklyKey: string,
-  ): void {
-    const existingDailyQuestIds = this.userQuests
-      .filter((uq) => uq.userId === userId && uq.periodKey === dailyKey)
-      .map((uq) => uq.questId);
-
-    const existingWeeklyQuestIds = this.userQuests
-      .filter((uq) => uq.userId === userId && uq.periodKey === weeklyKey)
-      .map((uq) => uq.questId);
-
-    const dailyQuests = this.quests.filter((q) => q.type === 'daily');
-    const weeklyQuests = this.quests.filter((q) => q.type === 'weekly');
-
-    dailyQuests.forEach((quest) => {
-      if (!existingDailyQuestIds.includes(quest.id)) {
-        this.userQuests.push({
-          id: this.nextUserQuestId,
-          userId,
-          questId: quest.id,
-          periodKey: dailyKey,
-          isCompleted: false,
-          claimedAt: null,
-          createdAt: new Date(),
-        });
-        this.nextUserQuestId += 1;
-      }
+  ): Promise<void> {
+    const quests = await this.questsRepository.find();
+    const existingUserQuests = await this.userQuestsRepository.find({
+      where: [
+        { userId, periodKey: dailyKey },
+        { userId, periodKey: weeklyKey },
+      ],
     });
 
-    weeklyQuests.forEach((quest) => {
-      if (!existingWeeklyQuestIds.includes(quest.id)) {
-        this.userQuests.push({
-          id: this.nextUserQuestId,
+    const existingKeys = new Set(
+      existingUserQuests.map((uq) => `${uq.questId}:${uq.periodKey}`),
+    );
+
+    const userQuestsToCreate = quests
+      .map((quest) => ({
+        quest,
+        periodKey: quest.type === 'daily' ? dailyKey : weeklyKey,
+      }))
+      .filter(
+        ({ quest, periodKey }) => !existingKeys.has(`${quest.id}:${periodKey}`),
+      )
+      .map(({ quest, periodKey }) =>
+        this.userQuestsRepository.create({
           userId,
           questId: quest.id,
-          periodKey: weeklyKey,
+          periodKey,
           isCompleted: false,
           claimedAt: null,
-          createdAt: new Date(),
-        });
-        this.nextUserQuestId += 1;
-      }
-    });
+        }),
+      );
+
+    if (userQuestsToCreate.length > 0) {
+      await this.userQuestsRepository.save(userQuestsToCreate);
+    }
   }
 
-  private findUserQuestById(userId: number, userQuestId: number): UserQuest {
-    const userQuest = this.userQuests.find(
-      (uq) => uq.userId === userId && uq.id === userQuestId,
-    );
+  private async findUserQuestById(
+    userId: number,
+    userQuestId: number,
+  ): Promise<UserQuest> {
+    const userQuest = await this.userQuestsRepository.findOneBy({
+      id: userQuestId,
+      userId,
+    });
 
     if (!userQuest) {
       throw new NotFoundException('퀘스트를 찾을 수 없습니다.');
@@ -122,8 +148,8 @@ export class QuestsService {
     return userQuest;
   }
 
-  private getQuestById(questId: number): Quest {
-    const quest = this.quests.find((q) => q.id === questId);
+  private async getQuestById(questId: number): Promise<Quest> {
+    const quest = await this.questsRepository.findOneBy({ id: questId });
 
     if (!quest) {
       throw new NotFoundException('퀘스트 정의를 찾을 수 없습니다.');
@@ -132,8 +158,10 @@ export class QuestsService {
     return quest;
   }
 
-  private toUserQuestResponse(userQuest: UserQuest): UserQuestResponse {
-    const quest = this.getQuestById(userQuest.questId);
+  private async toUserQuestResponse(
+    userQuest: UserQuest,
+  ): Promise<UserQuestResponse> {
+    const quest = await this.getQuestById(userQuest.questId);
 
     return {
       id: userQuest.id,

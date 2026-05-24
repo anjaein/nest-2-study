@@ -12,16 +12,16 @@ export class Todo extends BaseEntity {
   title: string;
 
   @Column({ nullable: true })
-  scheduledTime: string;
+  scheduledTime: string | null;
 
   @Column({ default: false })
   isCompleted: boolean;
 
   @Column({ nullable: true })
-  rewardGold: number;
+  rewardGold: number | null;
 
   @Column({ type: 'timestamp', nullable: true })
-  completedAt: Date;
+  completedAt: Date | null;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

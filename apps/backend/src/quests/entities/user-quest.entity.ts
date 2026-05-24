@@ -18,7 +18,7 @@ export class UserQuest extends BaseEntity {
   isCompleted: boolean;
 
   @Column({ type: 'timestamp', nullable: true })
-  claimedAt: Date;
+  claimedAt: Date | null;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

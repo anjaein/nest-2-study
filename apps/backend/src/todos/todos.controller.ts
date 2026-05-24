@@ -47,13 +47,13 @@ export class TodosController {
   }
 
   @Delete(':id')
-  delete(
+  async delete(
     @Headers('authorization') authorization: string | undefined,
     @Param('id', ParseIntPipe) id: number,
   ) {
     const userId = this.getUserIdFromAuthorization(authorization);
 
-    this.todosService.delete(userId, id);
+    await this.todosService.delete(userId, id);
 
     return { message: '삭제되었습니다.' };
   }

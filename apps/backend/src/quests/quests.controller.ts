@@ -22,7 +22,7 @@ export class QuestsController {
 
   @Post(':id/complete')
   complete(
-    @Headers('authorization') authorization?: string,
+    @Headers('authorization') authorization: string | undefined,
     @Param('id', ParseIntPipe) id: number,
   ) {
     const userId = this.getUserIdFromAuthorization(authorization);
@@ -32,7 +32,7 @@ export class QuestsController {
 
   @Post(':id/claim')
   claim(
-    @Headers('authorization') authorization?: string,
+    @Headers('authorization') authorization: string | undefined,
     @Param('id', ParseIntPipe) id: number,
   ) {
     const userId = this.getUserIdFromAuthorization(authorization);

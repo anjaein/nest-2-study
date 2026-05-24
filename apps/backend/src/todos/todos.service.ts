@@ -3,50 +3,57 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import type { CreateTodoDto } from './dto/create-todo.dto';
 import type { UpdateTodoDto } from './dto/update-todo.dto';
-import type { Todo, TodoResponse } from './todos.types';
+import { Todo } from './entities/todo.entity';
+import type { TodoResponse } from './todos.types';
 
 @Injectable()
 export class TodosService {
-  private readonly todos: Todo[] = [];
-  private nextId = 1;
+  constructor(
+    @InjectRepository(Todo)
+    private readonly todosRepository: Repository<Todo>,
+    private readonly usersService: UsersService,
+  ) {}
 
-  constructor(private readonly usersService: UsersService) {}
+  async findAll(userId: number): Promise<TodoResponse[]> {
+    const todos = await this.todosRepository.find({
+      where: { userId },
+      order: { createdAt: 'DESC' },
+    });
 
-  findAll(userId: number): TodoResponse[] {
-    return this.todos
-      .filter((todo) => todo.userId === userId)
-      .map((todo) => this.toTodoResponse(todo));
+    return todos.map((todo) => this.toTodoResponse(todo));
   }
 
-  create(userId: number, createTodoDto: CreateTodoDto): TodoResponse {
+  async create(
+    userId: number,
+    createTodoDto: CreateTodoDto,
+  ): Promise<TodoResponse> {
     this.assertTitle(createTodoDto.title);
 
-    const todo: Todo = {
-      id: this.nextId,
+    const todo = this.todosRepository.create({
       userId,
       title: createTodoDto.title.trim(),
       scheduledTime: createTodoDto.scheduledTime ?? null,
       isCompleted: false,
       rewardGold: null,
       completedAt: null,
-      createdAt: new Date(),
-    };
+    });
 
-    this.nextId += 1;
-    this.todos.push(todo);
+    await this.todosRepository.save(todo);
 
     return this.toTodoResponse(todo);
   }
 
-  update(
+  async update(
     userId: number,
     todoId: number,
     updateTodoDto: UpdateTodoDto,
-  ): TodoResponse {
-    const todo = this.findTodoById(userId, todoId);
+  ): Promise<TodoResponse> {
+    const todo = await this.findTodoById(userId, todoId);
 
     if (updateTodoDto.title !== undefined) {
       this.assertTitle(updateTodoDto.title);
@@ -57,23 +64,21 @@ export class TodosService {
       todo.scheduledTime = updateTodoDto.scheduledTime;
     }
 
+    await this.todosRepository.save(todo);
+
     return this.toTodoResponse(todo);
   }
 
-  delete(userId: number, todoId: number): void {
-    const todoIndex = this.todos.findIndex(
-      (todo) => todo.userId === userId && todo.id === todoId,
-    );
+  async delete(userId: number, todoId: number): Promise<void> {
+    const result = await this.todosRepository.delete({ id: todoId, userId });
 
-    if (todoIndex === -1) {
+    if (!result.affected) {
       throw new NotFoundException('할일을 찾을 수 없습니다.');
     }
-
-    this.todos.splice(todoIndex, 1);
   }
 
-  complete(userId: number, todoId: number): TodoResponse {
-    const todo = this.findTodoById(userId, todoId);
+  async complete(userId: number, todoId: number): Promise<TodoResponse> {
+    const todo = await this.findTodoById(userId, todoId);
 
     if (!todo.isCompleted) {
       const rewardGold = this.createTodoRewardGold();
@@ -81,16 +86,18 @@ export class TodosService {
       todo.isCompleted = true;
       todo.rewardGold = rewardGold;
       todo.completedAt = new Date();
-      this.usersService.addGold(userId, rewardGold);
+      await this.usersService.addGold(userId, rewardGold);
+      await this.todosRepository.save(todo);
     }
 
     return this.toTodoResponse(todo);
   }
 
-  private findTodoById(userId: number, todoId: number): Todo {
-    const todo = this.todos.find(
-      (candidate) => candidate.userId === userId && candidate.id === todoId,
-    );
+  private async findTodoById(userId: number, todoId: number): Promise<Todo> {
+    const todo = await this.todosRepository.findOneBy({
+      id: todoId,
+      userId,
+    });
 
     if (!todo) {
       throw new NotFoundException('할일을 찾을 수 없습니다.');

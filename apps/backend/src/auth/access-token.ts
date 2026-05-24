@@ -35,7 +35,9 @@ export function verifyAccessToken(accessToken: string): AccessTokenPayload {
     throw new UnauthorizedException('유효하지 않은 토큰입니다.');
   }
 
-  return JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as AccessTokenPayload;
+  return JSON.parse(
+    Buffer.from(payload, 'base64url').toString('utf8'),
+  ) as AccessTokenPayload;
 }
 
 function createSignature(header: string, payload: string): string {
