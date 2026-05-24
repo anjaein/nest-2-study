@@ -7,5 +7,12 @@
     "dev:frontend": "pnpm --filter frontend dev",
     "build:backend": "pnpm --filter backend build",
     "build:frontend": "pnpm --filter frontend build"
+  },
+  "dependencies": {
+    "@nestjs/typeorm": "^11.0.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "pg": "^8.21.0",
+    "typeorm": "^1.0.0"
   }
 }
