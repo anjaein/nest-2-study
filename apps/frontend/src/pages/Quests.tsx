@@ -61,7 +61,10 @@ export default function Quests() {
 
   const activeQuests = items.filter((t) => t.isQuest && !t.completed);
   const activeTodos = items.filter((t) => !t.isQuest && !t.completed);
-  const completedItems = items.filter((t) => t.completed);
+  // 탭별로 완료 항목 분리 — 다른 탭 완료 항목이 섞여 길어지는 것 방지
+  const completedItems = items.filter((t) =>
+    activeTab === 'quests' ? t.isQuest && t.completed : !t.isQuest && t.completed
+  );
 
   const renderActiveQuests = () => {
     if (activeQuests.length === 0) return null;

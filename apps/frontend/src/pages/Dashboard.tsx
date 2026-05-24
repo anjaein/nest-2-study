@@ -58,32 +58,6 @@ export default function Dashboard({ onNavigate }: { onNavigate: (screen: string)
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto min-h-0 px-4 pb-4 space-y-4">
-        {/* Daily reward */}
-        <div className="st-card p-4 relative overflow-hidden">
-          <div
-            className="absolute inset-0 rounded-2xl"
-            style={{ background: 'rgba(245,200,66,0.07)' }}
-          />
-          <div className="relative">
-            <p className="st-label mb-1.5">DAILY REWARD</p>
-            <p className="text-sm font-bold mb-1" style={{ color: 'var(--st-text)' }}>
-              오늘의 보상
-            </p>
-            <p className="text-xs mb-3" style={{ color: 'var(--st-muted)' }}>
-              출석 7일째 · 룰렛 1회
-            </p>
-            <button
-              className="absolute top-0 right-0 h-[46px] px-4 rounded-xl text-sm font-bold"
-              style={{
-                background: 'var(--st-gradient-gold)',
-                color: '#1A1100'
-              }}
-            >
-              받기 ✦
-            </button>
-          </div>
-        </div>
-
         {/* Today's quest progress */}
         <div className="st-card p-4">
           <p className="st-label mb-1.5">TODAY'S QUEST</p>

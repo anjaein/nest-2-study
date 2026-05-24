@@ -61,60 +61,6 @@ export default function SwordVault({
         </div>
       </div>
 
-      {/* Filter chips */}
-      <div className="px-4 pb-3 flex gap-1.5 overflow-x-auto">
-        <button
-          className="h-[30px] px-3 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0"
-          style={{
-            background: 'var(--st-gold)',
-            border: '1px solid var(--st-gold)',
-            color: 'var(--st-bg)'
-          }}
-        >
-          전체 12
-        </button>
-        <button
-          className="h-[30px] px-3 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0"
-          style={{
-            background: 'transparent',
-            border: '1px solid var(--st-border)',
-            color: 'var(--st-muted)'
-          }}
-        >
-          Legendary 1
-        </button>
-        <button
-          className="h-[30px] px-3 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0"
-          style={{
-            background: 'transparent',
-            border: '1px solid var(--st-border)',
-            color: 'var(--st-muted)'
-          }}
-        >
-          Epic 3
-        </button>
-        <button
-          className="h-[30px] px-3 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0"
-          style={{
-            background: 'transparent',
-            border: '1px solid var(--st-border)',
-            color: 'var(--st-muted)'
-          }}
-        >
-          Rare 4
-        </button>
-        <button
-          className="h-[30px] px-3 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0"
-          style={{
-            background: 'transparent',
-            border: '1px solid var(--st-border)',
-            color: 'var(--st-muted)'
-          }}
-        >
-          Common 4
-        </button>
-      </div>
-
       {/* Sword grid */}
       <div className="flex-1 overflow-y-auto min-h-0 px-4 pb-4">
         <div className="grid grid-cols-2 gap-3">

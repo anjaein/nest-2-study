@@ -20,6 +20,7 @@ const spinDurationMs = 1300;
 
 export default function Roulette({ onClose }: { onClose?: () => void }) {
   const [isSpinning, setIsSpinning] = useState(false);
+  const [hasSpun, setHasSpun] = useState(false); // 한 번이라도 돌렸는지
   const [rotation, setRotation] = useState(22);
   const [selectedIndex, setSelectedIndex] = useState(1);
   const [pendingIndex, setPendingIndex] = useState<number | null>(null);
@@ -40,6 +41,7 @@ export default function Roulette({ onClose }: { onClose?: () => void }) {
       setSelectedIndex(nextIndex);
       setPendingIndex(null);
       setIsSpinning(false);
+      setHasSpun(true); // 스핀 완료 → 보상 받기 버튼으로 전환
     }, spinDurationMs);
   };
 
@@ -146,14 +148,25 @@ export default function Roulette({ onClose }: { onClose?: () => void }) {
             >
               닫기
             </button>
-            <button
-              type="button"
-              className="st-btn-gold disabled:cursor-wait disabled:opacity-70"
-              disabled={isSpinning}
-              onClick={spin}
-            >
-              {isSpinning ? '진행 중' : '돌리기'}
-            </button>
+            {/* 돌린 후에는 보상 ���기 버튼으로 교체 */}
+            {hasSpun && !isSpinning ? (
+              <button
+                type="button"
+                className="st-btn-gold"
+                onClick={onClose}
+              >
+                보상 받기 ✦
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="st-btn-gold disabled:cursor-wait disabled:opacity-70"
+                disabled={isSpinning}
+                onClick={spin}
+              >
+                {isSpinning ? '진행 중' : '돌리기'}
+              </button>
+            )}
           </div>
         </div>
       </section>
