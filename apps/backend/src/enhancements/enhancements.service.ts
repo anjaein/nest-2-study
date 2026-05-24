@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,6 +13,7 @@ import type { EnhanceResult } from './enhancements.types';
 
 @Injectable()
 export class EnhancementsService {
+  private readonly logger = new Logger(EnhancementsService.name);
   private readonly enhanceConfigs = [
     { level: 1, successRate: 1.0, requiredGold: 100 },
     { level: 2, successRate: 0.95, requiredGold: 150 },
@@ -35,9 +37,14 @@ export class EnhancementsService {
   ) {}
 
   async enhance(userId: number, swordId: number): Promise<EnhanceResult> {
+    this.logger.log(`강화 시도: userId=${userId}, swordId=${swordId}`);
+
     const sword = await this.swordsService.findById(userId, swordId);
 
     if (sword.level >= this.maxLevel) {
+      this.logger.warn(
+        `강화 실패: 최대 레벨 도달 userId=${userId}, swordId=${swordId}, level=${sword.level}`,
+      );
       throw new BadRequestException('더 이상 강화할 수 없습니다.');
     }
 
@@ -46,6 +53,9 @@ export class EnhancementsService {
 
     const userProfile = await this.usersService.getMyProfile(userId);
     if (userProfile.gold < config.requiredGold) {
+      this.logger.warn(
+        `강화 실패: 골드 부족 userId=${userId}, swordId=${swordId}, requiredGold=${config.requiredGold}, currentGold=${userProfile.gold}`,
+      );
       throw new BadRequestException('골드가 부족합니다.');
     }
 
@@ -64,6 +74,13 @@ export class EnhancementsService {
 
     if (success) {
       await this.swordsService.addLevel(userId, swordId);
+      this.logger.log(
+        `강화 성공: userId=${userId}, swordId=${swordId}, level=${targetLevel}, goldUsed=${config.requiredGold}`,
+      );
+    } else {
+      this.logger.warn(
+        `강화 실패: userId=${userId}, swordId=${swordId}, targetLevel=${targetLevel}, goldUsed=${config.requiredGold}`,
+      );
     }
 
     return {
