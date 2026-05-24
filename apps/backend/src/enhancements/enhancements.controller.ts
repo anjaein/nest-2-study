@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Headers,
-  Param,
-  ParseIntPipe,
-  Post,
-} from '@nestjs/common';
+import { Controller, Headers, Param, ParseIntPipe, Post } from '@nestjs/common';
 import { verifyAccessToken } from '../auth/access-token';
 import { EnhancementsService } from './enhancements.service';
 
@@ -14,7 +8,7 @@ export class EnhancementsController {
 
   @Post(':id/enhance')
   enhance(
-    @Headers('authorization') authorization?: string,
+    @Headers('authorization') authorization: string | undefined,
     @Param('id', ParseIntPipe) id: number,
   ) {
     const userId = this.getUserIdFromAuthorization(authorization);

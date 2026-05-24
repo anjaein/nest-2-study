@@ -14,10 +14,10 @@ export class UsersController {
   }
 
   @Delete('me')
-  deleteMe(@Headers('authorization') authorization?: string) {
+  async deleteMe(@Headers('authorization') authorization?: string) {
     const userId = this.getUserIdFromAuthorization(authorization);
 
-    this.usersService.deleteUser(userId);
+    await this.usersService.deleteUser(userId);
 
     return { message: '탈퇴가 완료되었습니다.' };
   }

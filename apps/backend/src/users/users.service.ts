@@ -1,61 +1,78 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
-import type { MyProfile, PublicUser, User } from './users.types';
+import { Repository } from 'typeorm';
+import { User } from './entities/user.entity';
+import type { MyProfile, PublicUser } from './users.types';
 
 @Injectable()
 export class UsersService {
-  private readonly users: User[] = [];
-  private nextId = 1;
+  constructor(
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+  ) {}
 
-  createUser(email: string, password: string, nickname: string): PublicUser {
+  async createUser(
+    email: string,
+    password: string,
+    nickname: string,
+  ): Promise<PublicUser> {
     const normalizedEmail = email.trim().toLowerCase();
 
-    if (this.users.some((user) => user.email === normalizedEmail)) {
+    const existingUser = await this.usersRepository.findOneBy({
+      email: normalizedEmail,
+    });
+
+    if (existingUser) {
       throw new ConflictException('이미 가입된 이메일입니다.');
     }
 
     const passwordSalt = randomBytes(16).toString('hex');
-    const user: User = {
-      id: this.nextId,
+    const user = this.usersRepository.create({
       email: normalizedEmail,
       passwordHash: this.hashPassword(password, passwordSalt),
       passwordSalt,
       nickname: nickname.trim(),
       gold: 0,
       gem: 0,
-      createdAt: new Date(),
-    };
+    });
 
-    this.nextId += 1;
-    this.users.push(user);
+    await this.usersRepository.save(user);
 
     return this.toPublicUser(user);
   }
 
-  validateCredentials(email: string, password: string): PublicUser | null {
+  async validateCredentials(
+    email: string,
+    password: string,
+  ): Promise<PublicUser | null> {
     const normalizedEmail = email.trim().toLowerCase();
-    const user = this.users.find((candidate) => {
-      if (candidate.email !== normalizedEmail) {
-        return false;
-      }
+    const user = await this.usersRepository.findOneBy({
+      email: normalizedEmail,
+    });
 
-      return this.verifyPassword(password, candidate);
+    if (!user || !this.verifyPassword(password, user)) {
+      return null;
+    }
+
+    return this.toPublicUser(user);
+  }
+
+  async findByEmail(email: string): Promise<PublicUser | null> {
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await this.usersRepository.findOneBy({
+      email: normalizedEmail,
     });
 
     return user ? this.toPublicUser(user) : null;
   }
 
-  findByEmail(email: string): PublicUser | null {
-    const normalizedEmail = email.trim().toLowerCase();
-    const user = this.users.find(
-      (candidate) => candidate.email === normalizedEmail,
-    );
-
-    return user ? this.toPublicUser(user) : null;
-  }
-
-  getMyProfile(userId: number): MyProfile {
-    const user = this.findUserById(userId);
+  async getMyProfile(userId: number): Promise<MyProfile> {
+    const user = await this.findUserById(userId);
 
     return {
       id: user.id,
@@ -65,26 +82,26 @@ export class UsersService {
     };
   }
 
-  deleteUser(userId: number): void {
-    const userIndex = this.users.findIndex((user) => user.id === userId);
+  async deleteUser(userId: number): Promise<void> {
+    const result = await this.usersRepository.delete({ id: userId });
 
-    if (userIndex === -1) {
+    if (!result.affected) {
       throw new NotFoundException('사용자를 찾을 수 없습니다.');
     }
-
-    this.users.splice(userIndex, 1);
   }
 
-  addGold(userId: number, amount: number): void {
-    const user = this.findUserById(userId);
+  async addGold(userId: number, amount: number): Promise<void> {
+    const user = await this.findUserById(userId);
 
     user.gold += amount;
+    await this.usersRepository.save(user);
   }
 
-  addGem(userId: number, amount: number): void {
-    const user = this.findUserById(userId);
+  async addGem(userId: number, amount: number): Promise<void> {
+    const user = await this.findUserById(userId);
 
     user.gem += amount;
+    await this.usersRepository.save(user);
   }
 
   private hashPassword(password: string, salt: string): string {
@@ -101,8 +118,8 @@ export class UsersService {
     return timingSafeEqual(passwordHash, storedPasswordHash);
   }
 
-  private findUserById(userId: number): User {
-    const user = this.users.find((candidate) => candidate.id === userId);
+  private async findUserById(userId: number): Promise<User> {
+    const user = await this.usersRepository.findOneBy({ id: userId });
 
     if (!user) {
       throw new NotFoundException('사용자를 찾을 수 없습니다.');

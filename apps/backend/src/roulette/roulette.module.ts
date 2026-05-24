@@ -1,16 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '../users/users.module';
+import { RouletteSpin } from './entities/roulette-spin.entity';
 import { RouletteController } from './roulette.controller';
 import { RouletteService } from './roulette.service';
-import { RouletteSpinRepository } from './repositories/roulette-spin.repository';
-import { RouletteSpin } from './entities/roulette-spin.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([RouletteSpin, RouletteSpinRepository]),
-    UsersModule,
-  ],
+  imports: [TypeOrmModule.forFeature([RouletteSpin]), UsersModule],
   controllers: [RouletteController],
   providers: [RouletteService],
 })

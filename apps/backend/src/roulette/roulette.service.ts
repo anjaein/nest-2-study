@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
-import type { RouletteSpin, SpinResult } from './roulette.types';
+import { RouletteSpin } from './entities/roulette-spin.entity';
+import type { SpinResult } from './roulette.types';
 
 @Injectable()
 export class RouletteService {
@@ -14,27 +17,27 @@ export class RouletteService {
     { id: 7, rewardType: 'gem' as const, rewardAmount: 5 },
   ];
 
-  private readonly spins: RouletteSpin[] = [];
-  private nextId = 1;
+  constructor(
+    @InjectRepository(RouletteSpin)
+    private readonly spinsRepository: Repository<RouletteSpin>,
+    private readonly usersService: UsersService,
+  ) {}
 
-  constructor(private readonly usersService: UsersService) {}
-
-  spin(userId: number): SpinResult {
+  async spin(userId: number): Promise<SpinResult> {
     const item = this.items[Math.floor(Math.random() * this.items.length)];
 
-    this.spins.push({
-      id: this.nextId,
-      userId,
-      rewardType: item.rewardType,
-      rewardAmount: item.rewardAmount,
-      spinnedAt: new Date(),
-    });
-    this.nextId += 1;
+    await this.spinsRepository.save(
+      this.spinsRepository.create({
+        userId,
+        rewardType: item.rewardType,
+        rewardAmount: item.rewardAmount,
+      }),
+    );
 
     if (item.rewardType === 'gold') {
-      this.usersService.addGold(userId, item.rewardAmount);
+      await this.usersService.addGold(userId, item.rewardAmount);
     } else {
-      this.usersService.addGem(userId, item.rewardAmount);
+      await this.usersService.addGem(userId, item.rewardAmount);
     }
 
     return {

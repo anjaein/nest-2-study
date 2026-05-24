@@ -22,7 +22,7 @@ export class SwordsController {
 
   @Get(':id')
   findById(
-    @Headers('authorization') authorization?: string,
+    @Headers('authorization') authorization: string | undefined,
     @Param('id', ParseIntPipe) id: number,
   ) {
     const userId = this.getUserIdFromAuthorization(authorization);
@@ -32,7 +32,7 @@ export class SwordsController {
 
   @Patch(':id/equip')
   equip(
-    @Headers('authorization') authorization?: string,
+    @Headers('authorization') authorization: string | undefined,
     @Param('id', ParseIntPipe) id: number,
   ) {
     const userId = this.getUserIdFromAuthorization(authorization);
