@@ -1,6 +1,6 @@
 export default function EnhanceSuccess({ onContinue, onReturn }: { onContinue?: () => void; onReturn?: () => void }) {
   return (
-    <div className="relative flex-1 z-10 flex flex-col px-6 py-10 items-center justify-center">
+    <div className="relative flex-1 min-h-0 z-10 flex flex-col px-6 py-10 items-center justify-center overflow-y-auto">
       {/* Green radial glow */}
       <div
         className="absolute inset-0 pointer-events-none z-0"

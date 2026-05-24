@@ -3,7 +3,7 @@ import StatusBar from '../components/StatusBar';
 
 export default function Dashboard({ onNavigate }: { onNavigate: (screen: string) => void }) {
   return (
-    <>
+    <div className="flex flex-col flex-1 min-h-0">
       <StatusBar />
 
       {/* Header */}
@@ -20,10 +20,10 @@ export default function Dashboard({ onNavigate }: { onNavigate: (screen: string)
             ⚔
           </div>
           <div className="flex-1">
-            <p className="text-[11px] tracking-wide" style={{ color: 'var(--st-muted)' }}>
+            <p className="text-xs tracking-wide" style={{ color: 'var(--st-muted)' }}>
               환영합니다
             </p>
-            <p className="text-[15px] font-bold" style={{ color: 'var(--st-text)' }}>
+            <p className="text-sm font-bold" style={{ color: 'var(--st-text)' }}>
               김기사
             </p>
           </div>
@@ -32,7 +32,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (screen: string)
         {/* Currency pills */}
         <div className="flex gap-2">
           <div
-            className="h-[34px] px-2.5 rounded-full flex items-center text-[13px] font-bold"
+            className="h-[34px] px-2.5 rounded-full flex items-center text-xs font-bold"
             style={{
               background: 'var(--st-elevated)',
               border: '1px solid var(--st-gold)',
@@ -43,7 +43,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (screen: string)
             ◈ 2,840
           </div>
           <div
-            className="h-[34px] px-2.5 rounded-full flex items-center text-[13px] font-bold"
+            className="h-[34px] px-2.5 rounded-full flex items-center text-xs font-bold"
             style={{
               background: 'var(--st-elevated)',
               border: '1px solid var(--st-gem)',
@@ -57,7 +57,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (screen: string)
       </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-auto px-4 pb-4 space-y-4">
+      <div className="flex-1 overflow-y-auto min-h-0 px-4 pb-4 space-y-4">
         {/* Daily reward */}
         <div className="st-card p-4 relative overflow-hidden">
           <div
@@ -66,14 +66,14 @@ export default function Dashboard({ onNavigate }: { onNavigate: (screen: string)
           />
           <div className="relative">
             <p className="st-label mb-1.5">DAILY REWARD</p>
-            <p className="text-[15px] font-bold mb-1" style={{ color: 'var(--st-text)' }}>
+            <p className="text-sm font-bold mb-1" style={{ color: 'var(--st-text)' }}>
               오늘의 보상
             </p>
-            <p className="text-[11px] mb-3" style={{ color: 'var(--st-muted)' }}>
+            <p className="text-xs mb-3" style={{ color: 'var(--st-muted)' }}>
               출석 7일째 · 룰렛 1회
             </p>
             <button
-              className="absolute top-0 right-0 h-[46px] px-4 rounded-xl text-[13px] font-bold"
+              className="absolute top-0 right-0 h-[46px] px-4 rounded-xl text-sm font-bold"
               style={{
                 background: 'var(--st-gradient-gold)',
                 color: '#1A1100'
@@ -88,13 +88,13 @@ export default function Dashboard({ onNavigate }: { onNavigate: (screen: string)
         <div className="st-card p-4">
           <p className="st-label mb-1.5">TODAY'S QUEST</p>
           <div className="flex items-end gap-2 mb-3">
-            <span className="text-[32px] font-bold leading-none" style={{ color: 'var(--st-text)' }}>
+            <span className="text-3xl font-bold leading-none" style={{ color: 'var(--st-text)' }}>
               4
             </span>
             <span className="text-sm pb-1" style={{ color: 'var(--st-muted)' }}>
               / 7 완료
             </span>
-            <span className="text-[11px] font-semibold ml-auto pb-1" style={{ color: 'var(--st-success)' }}>
+            <span className="text-xs font-semibold ml-auto pb-1" style={{ color: 'var(--st-success)' }}>
               57%
             </span>
           </div>
@@ -119,30 +119,30 @@ export default function Dashboard({ onNavigate }: { onNavigate: (screen: string)
         <div className="grid grid-cols-3 gap-2">
           <div className="st-card p-2.5">
             <p className="st-label mb-1">검 수</p>
-            <p className="text-[22px] font-bold mb-1" style={{ color: 'var(--st-gold)' }}>
+            <p className="text-2xl font-bold mb-1" style={{ color: 'var(--st-gold)' }}>
               12
             </p>
-            <p className="text-[9px]" style={{ color: 'var(--st-muted)' }}>
+            <p className="text-[10px]" style={{ color: 'var(--st-muted)' }}>
               +1 이번주
             </p>
           </div>
 
           <div className="st-card p-2.5">
             <p className="st-label mb-1">완료 퀘스트</p>
-            <p className="text-[22px] font-bold mb-1" style={{ color: 'var(--st-gold)' }}>
+            <p className="text-2xl font-bold mb-1" style={{ color: 'var(--st-gold)' }}>
               184
             </p>
-            <p className="text-[9px]" style={{ color: 'var(--st-muted)' }}>
+            <p className="text-[10px]" style={{ color: 'var(--st-muted)' }}>
               all-time
             </p>
           </div>
 
           <div className="st-card p-2.5">
             <p className="st-label mb-1">연속 출석</p>
-            <p className="text-[22px] font-bold mb-1" style={{ color: 'var(--st-success)' }}>
+            <p className="text-2xl font-bold mb-1" style={{ color: 'var(--st-success)' }}>
               7
             </p>
-            <p className="text-[9px]" style={{ color: 'var(--st-muted)' }}>
+            <p className="text-[10px]" style={{ color: 'var(--st-muted)' }}>
               🔥 days
             </p>
           </div>
@@ -166,12 +166,12 @@ export default function Dashboard({ onNavigate }: { onNavigate: (screen: string)
             <p className="st-label mb-1" style={{ color: 'var(--st-gold)' }}>
               EQUIPPED
             </p>
-            <p className="text-[15px] font-semibold mb-1" style={{ color: 'var(--st-text)' }}>
+            <p className="text-sm font-semibold mb-1" style={{ color: 'var(--st-text)' }}>
               Excalibur
             </p>
             <div className="flex items-center gap-2">
               <span className="st-badge-legendary">LEGENDARY</span>
-              <span className="text-[11px] font-bold" style={{ color: 'var(--st-text)' }}>
+              <span className="text-xs font-bold" style={{ color: 'var(--st-text)' }}>
                 Lv.14
               </span>
             </div>
@@ -185,7 +185,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (screen: string)
               alert('탈퇴가 완료되었습니다.');
             }
           }}
-          className="w-full py-3 text-[11px] font-medium tracking-wide"
+          className="w-full py-3 text-xs font-medium tracking-wide"
           style={{
             color: 'var(--st-muted)',
             textDecoration: 'underline'
@@ -195,7 +195,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (screen: string)
         </button>
       </div>
 
-      <BottomNav activeTab="dashboard" onTabChange={(tab) => onNavigate(tab)} />
-    </>
+      <BottomNav />
+    </div>
   );
 }

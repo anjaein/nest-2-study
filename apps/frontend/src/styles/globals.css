@@ -1,0 +1,7 @@
+/* 전체 화면을 꽉 채우고 body 자체 스크롤 차단 */
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+}

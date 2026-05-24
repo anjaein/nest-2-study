@@ -9,7 +9,7 @@ export default function SwordDetail({
   onEnhance: () => void;
 }) {
   return (
-    <>
+    <div className="flex flex-col flex-1 min-h-0">
       <StatusBar />
 
       {/* Header */}
@@ -41,7 +41,7 @@ export default function SwordDetail({
       </div>
 
       {/* Sword display */}
-      <div className="flex-1 overflow-auto px-4 pb-4 space-y-4">
+      <div className="flex-1 overflow-y-auto min-h-0 px-4 pb-4 space-y-4">
         <div className="flex flex-col items-center py-8">
           <div
             className="relative w-[200px] h-[200px] rounded-full flex items-center justify-center mb-6"
@@ -154,7 +154,7 @@ export default function SwordDetail({
         </button>
       </div>
 
-      <BottomNav activeTab="vault" onTabChange={(tab) => onNavigate(tab)} />
-    </>
+      <BottomNav />
+    </div>
   );
 }

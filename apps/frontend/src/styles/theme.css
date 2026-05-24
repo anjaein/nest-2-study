@@ -50,6 +50,7 @@
   --st-gold-light: #FBD66A;
   --st-gem: #7B5CF5;
   --st-gem-light: #B49CFF;
+  --st-rare: #6BA1FF;
   --st-success: #3DDC84;
   --st-danger: #FF4D4D;
   --st-text: #F0EFE7;
@@ -57,7 +58,7 @@
   --st-border: #2E2E38;
 
   /* Fonts */
-  --st-display: 'Cinzel', serif;
+  --st-display: 'Inter', system-ui, sans-serif;
   --st-body: 'Inter', system-ui, sans-serif;
   --st-mono: 'JetBrains Mono', ui-monospace, monospace;
 
@@ -70,6 +71,8 @@
   --st-glow-gold: rgba(245, 200, 66, 0.08);
   --st-glow-gold-strong: rgba(245, 200, 66, 0.15);
   --st-glow-gem: rgba(123, 92, 245, 0.15);
+  --st-glow-rare: rgba(107, 161, 255, 0.15);
+  --st-glow-common: rgba(138, 138, 154, 0.15);
   --st-glow-success: rgba(61, 220, 132, 0.22);
 
   /* Gradients */
@@ -163,6 +166,11 @@
 
   body {
     @apply bg-background text-foreground;
+    overscroll-behavior-y: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
   /**
@@ -306,8 +314,8 @@
     padding: 3px 8px;
     border-radius: 4px;
     text-transform: uppercase;
-    border: 1px solid #6ba1ff;
-    color: #6ba1ff;
+    border: 1px solid var(--st-rare);
+    color: var(--st-rare);
     background: rgba(0, 0, 0, 0);
   }
 

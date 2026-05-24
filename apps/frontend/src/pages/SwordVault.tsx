@@ -10,10 +10,10 @@ interface Sword {
 }
 
 const rarityColors = {
-  legendary: { border: 'var(--st-gold)', text: 'var(--st-gold)', bg: 'rgba(245,200,66,0.15)' },
-  epic: { border: 'var(--st-gem)', text: 'var(--st-gem)', bg: 'rgba(123,92,245,0.15)' },
-  rare: { border: '#6ba1ff', text: '#6ba1ff', bg: 'rgba(107,161,255,0.15)' },
-  common: { border: 'var(--st-muted)', text: 'var(--st-muted)', bg: 'rgba(138,138,154,0.15)' }
+  legendary: { border: 'var(--st-gold)', text: 'var(--st-gold)', bg: 'var(--st-glow-gold-strong)' },
+  epic: { border: 'var(--st-gem)', text: 'var(--st-gem)', bg: 'var(--st-glow-gem)' },
+  rare: { border: 'var(--st-rare)', text: 'var(--st-rare)', bg: 'var(--st-glow-rare)' },
+  common: { border: 'var(--st-muted)', text: 'var(--st-muted)', bg: 'var(--st-glow-common)' }
 };
 
 const rarityClasses = {
@@ -40,21 +40,31 @@ export default function SwordVault({
   ];
 
   return (
-    <>
+    <div className="flex flex-col flex-1 min-h-0">
       <StatusBar />
 
       {/* Header */}
-      <div className="px-4 py-3">
-        <h1 className="text-[26px] font-bold mb-1 st-heading" style={{ color: 'var(--st-text)' }}>
-          보관함
-        </h1>
-        <p className="st-label text-xs">VAULT · 보유 검 12</p>
+      <div className="px-4 py-3.5 flex items-center justify-between gap-2">
+        <div>
+          <h1 className="text-2xl font-semibold st-heading text-[var(--st-text)]">
+            보관함
+          </h1>
+          <p className="st-label text-xs mt-0.5">VAULT · 보유 검 12</p>
+        </div>
+        <div className="flex gap-1.5">
+          <div className="h-[34px] px-2.5 rounded-lg flex items-center text-xs font-bold" style={{ background: 'var(--st-elevated)', border: '1px solid var(--st-gold)', color: 'var(--st-gold)' }}>
+            ◈ 2,840
+          </div>
+          <div className="h-[34px] px-2.5 rounded-lg flex items-center text-xs font-bold" style={{ background: 'var(--st-elevated)', border: '1px solid var(--st-gem)', color: 'var(--st-gem)' }}>
+            ◆ 15
+          </div>
+        </div>
       </div>
 
       {/* Filter chips */}
       <div className="px-4 pb-3 flex gap-1.5 overflow-x-auto">
         <button
-          className="h-[30px] px-3 rounded-full text-[10px] font-semibold whitespace-nowrap flex-shrink-0"
+          className="h-[30px] px-3 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0"
           style={{
             background: 'var(--st-gold)',
             border: '1px solid var(--st-gold)',
@@ -64,7 +74,7 @@ export default function SwordVault({
           전체 12
         </button>
         <button
-          className="h-[30px] px-3 rounded-full text-[10px] font-semibold whitespace-nowrap flex-shrink-0"
+          className="h-[30px] px-3 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0"
           style={{
             background: 'transparent',
             border: '1px solid var(--st-border)',
@@ -74,7 +84,7 @@ export default function SwordVault({
           Legendary 1
         </button>
         <button
-          className="h-[30px] px-3 rounded-full text-[10px] font-semibold whitespace-nowrap flex-shrink-0"
+          className="h-[30px] px-3 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0"
           style={{
             background: 'transparent',
             border: '1px solid var(--st-border)',
@@ -84,7 +94,7 @@ export default function SwordVault({
           Epic 3
         </button>
         <button
-          className="h-[30px] px-3 rounded-full text-[10px] font-semibold whitespace-nowrap flex-shrink-0"
+          className="h-[30px] px-3 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0"
           style={{
             background: 'transparent',
             border: '1px solid var(--st-border)',
@@ -94,7 +104,7 @@ export default function SwordVault({
           Rare 4
         </button>
         <button
-          className="h-[30px] px-3 rounded-full text-[10px] font-semibold whitespace-nowrap flex-shrink-0"
+          className="h-[30px] px-3 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0"
           style={{
             background: 'transparent',
             border: '1px solid var(--st-border)',
@@ -106,7 +116,7 @@ export default function SwordVault({
       </div>
 
       {/* Sword grid */}
-      <div className="flex-1 overflow-auto px-4 pb-4">
+      <div className="flex-1 overflow-y-auto min-h-0 px-4 pb-4">
         <div className="grid grid-cols-2 gap-3">
           {swords.map((sword) => {
             const colors = rarityColors[sword.rarity];
@@ -126,7 +136,7 @@ export default function SwordVault({
               >
                 {sword.equipped && (
                   <p
-                    className="text-[8px] font-bold tracking-[1.2px] uppercase text-center mb-2"
+                    className="text-[10px] font-bold tracking-[1.2px] uppercase text-center mb-2"
                     style={{ color: colors.text }}
                   >
                     장착 중
@@ -137,12 +147,12 @@ export default function SwordVault({
                   className="w-[100px] h-20 mx-auto mb-4 rounded-[50px] flex items-center justify-center"
                   style={{ background: colors.bg }}
                 >
-                  <span className="text-[56px]" style={{ color: colors.text }}>
+                  <span className="text-5xl" style={{ color: colors.text }}>
                     ⚔
                   </span>
                 </div>
 
-                <p className="text-[13px] font-semibold mb-2" style={{ color: 'var(--st-text)' }}>
+                <p className="text-sm font-semibold mb-2" style={{ color: 'var(--st-text)' }}>
                   {sword.name}
                 </p>
 
@@ -151,7 +161,7 @@ export default function SwordVault({
                     {sword.rarity.toUpperCase()}
                   </span>
                   <span
-                    className="text-[11px] font-bold"
+                    className="text-xs font-bold"
                     style={{ color: 'var(--st-text)', fontFamily: 'var(--st-mono)' }}
                   >
                     Lv.{sword.level}
@@ -163,7 +173,7 @@ export default function SwordVault({
         </div>
       </div>
 
-      <BottomNav activeTab="vault" onTabChange={(tab) => onNavigate(tab)} />
-    </>
+      <BottomNav />
+    </div>
   );
 }

@@ -10,7 +10,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <main
-        className="min-h-screen w-full overflow-hidden"
+        className="h-[100dvh] w-full overflow-hidden"
         style={{
           background: `
             radial-gradient(ellipse at top, rgba(245,200,66,0.04), transparent 50%),
@@ -19,7 +19,7 @@ export default function App() {
           `
         }}
       >
-        <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col overflow-hidden bg-[var(--st-bg)] md:border-x md:border-[var(--st-border)]">
+        <div className="mx-auto flex h-full w-full max-w-[480px] flex-col overflow-hidden bg-[var(--st-bg)] relative md:border-x md:border-[var(--st-border)] shadow-2xl">
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login />} />
