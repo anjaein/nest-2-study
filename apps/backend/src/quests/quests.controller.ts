@@ -22,8 +22,8 @@ export class QuestsController {
 
   @Post(':id/complete')
   complete(
-    @Headers('authorization') authorization?: string,
     @Param('id', ParseIntPipe) id: number,
+    @Headers('authorization') authorization?: string,
   ) {
     const userId = this.getUserIdFromAuthorization(authorization);
 
@@ -32,8 +32,8 @@ export class QuestsController {
 
   @Post(':id/claim')
   claim(
-    @Headers('authorization') authorization?: string,
     @Param('id', ParseIntPipe) id: number,
+    @Headers('authorization') authorization?: string,
   ) {
     const userId = this.getUserIdFromAuthorization(authorization);
 

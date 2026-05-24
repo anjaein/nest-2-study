@@ -14,8 +14,8 @@ export class EnhancementsController {
 
   @Post(':id/enhance')
   enhance(
-    @Headers('authorization') authorization?: string,
     @Param('id', ParseIntPipe) id: number,
+    @Headers('authorization') authorization?: string,
   ) {
     const userId = this.getUserIdFromAuthorization(authorization);
 
